@@ -22,6 +22,12 @@ export type ArticleData = {
   month: number
 }
 
+export type CategoryInfo = {
+  slug: string
+  label: string
+  count: number
+}
+
 // 全記事のslugを取得
 export async function getAllArticleSlugs() {
   // content/articlesディレクトリが存在しない場合は作成
@@ -136,4 +142,25 @@ export async function getRelatedArticles(currentSlug: string, limit = 3): Promis
   )
 
   return [...sameCategory, ...otherArticles].slice(0, limit)
+}
+
+export async function searchArticles(query: string): Promise<ArticleData[]> {
+  const articles = await getAllArticles()
+
+  if (!query || query.trim() === '') {
+    return articles
+  }
+
+  const searchTerms = query.toLowerCase().trim().split(/\s+/)
+
+  return articles.filter((article) => {
+    const searchableText = `
+      ${article.title.toLowerCase()}
+      ${article.excerpt.toLowerCase()}
+      ${article.category.toLowerCase()}
+      ${article.content.toLowerCase()}
+    `
+
+    return searchTerms.every((term) => searchableText.includes(term))
+  })
 }
