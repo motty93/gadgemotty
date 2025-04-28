@@ -95,15 +95,22 @@ body {
 
 /* Add styles for the article content */
 .prose {
-  @apply text-gray-800 leading-relaxed;
+  @apply text-gray-800 leading-relaxed dark:text-gray-200;
 }
 
 .prose h2 {
-  @apply text-xl font-bold mt-8 mb-4;
+  @apply text-xl font-bold mt-8 mb-4 pt-2 border-t border-gray-200 dark:border-gray-700;
+  scroll-margin-top: 80px;
 }
 
 .prose h3 {
   @apply text-lg font-bold mt-6 mb-3;
+  scroll-margin-top: 80px;
+}
+
+.prose h4 {
+  @apply text-base font-bold mt-4 mb-2;
+  scroll-margin-top: 80px;
 }
 
 .prose p {
