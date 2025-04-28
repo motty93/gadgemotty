@@ -164,3 +164,55 @@ export async function searchArticles(query: string): Promise<ArticleData[]> {
     return searchTerms.every((term) => searchableText.includes(term))
   })
 }
+
+export async function getAllCategories(): Promise<CategoryInfo[]> {
+  const articles = await getAllArticles()
+
+  const categoryMap = new Map<string, { label: string; count: number }>()
+
+  for (const article of articles) {
+    const { category, categoryLabel } = article
+
+    if (category) {
+      const slug = encodeURIComponent(category.toLowerCase().replace(/\s+/g, '-'))
+
+      if (categoryMap.has(slug)) {
+        const categoryInfo = categoryMap.get(slug) || { label: '', count: 0 }
+        categoryMap.set(slug, {
+          ...categoryInfo,
+          count: categoryInfo.count + 1,
+        })
+      } else {
+        categoryMap.set(slug, {
+          label: categoryLabel || category,
+          count: 1,
+        })
+      }
+    }
+  }
+
+  return Array.from(categoryMap.entries())
+    .map(([slug, { label, count }]) => ({
+      slug,
+      label,
+      count,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+}
+
+// カテゴリー別の記事を取得
+export async function getArticlesByCategory(categorySlug: string): Promise<ArticleData[]> {
+  const articles = await getAllArticles()
+
+  return articles.filter((article) => {
+    const articleCategorySlug = encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))
+    return articleCategorySlug === categorySlug
+  })
+}
+
+// カテゴリースラグからラベルを取得
+export async function getCategoryLabel(categorySlug: string): Promise<string> {
+  const categories = await getAllCategories()
+  const category = categories.find((cat) => cat.slug === categorySlug)
+  return category ? category.label : categorySlug
+}

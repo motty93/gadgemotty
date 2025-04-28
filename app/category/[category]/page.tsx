@@ -1,21 +1,26 @@
 import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
-import { getAllArticles, getAllCategories, getArticlesByYearMonth } from '@/lib/markdown'
+import { getAllArticles, getAllCategories, getArticlesByCategory, getCategoryLabel } from '@/lib/markdown'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// 月の名前（日本語）
-const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+// 動的ルーティングのためのパラメータを生成
+export async function generateStaticParams() {
+  const categories = await getAllCategories()
+  return categories.map((category) => ({
+    category: category.slug,
+  }))
+}
 
-export default async function ArchivePage({ params }: { params: { year: string; month: string } }) {
-  const year = Number.parseInt(params.year)
-  const month = Number.parseInt(params.month)
-  const articles = await getArticlesByYearMonth(year, month)
+export default async function CategoryPage({ params }: { params: { category: string } }) {
+  const resolvedParams = await params
+  const categorySlug = resolvedParams.category
+  const articles = await getArticlesByCategory(categorySlug)
   const allArticles = await getAllArticles()
   const categories = await getAllCategories()
-  const monthName = monthNames[month - 1]
+  const categoryLabel = await getCategoryLabel(categorySlug)
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
@@ -24,7 +29,7 @@ export default async function ArchivePage({ params }: { params: { year: string; 
 
       <div className="flex flex-col md:flex-row gap-6 md:gap-8">
         <main className="w-full md:w-2/3 space-y-8 md:space-y-8">
-          <div className="bg-white p-6 rounded shadow-sm mb-8 dark:bg-gray-800 dark:text-white">
+          <div className="w-full bg-white p-6 rounded shadow-sm mb-8 dark:bg-gray-800 dark:text-white">
             <Link
               href="/"
               className="text-gray-600 hover:text-black flex items-center mb-6 dark:text-gray-300 dark:hover:text-white"
@@ -33,12 +38,12 @@ export default async function ArchivePage({ params }: { params: { year: string; 
               ホームに戻る
             </Link>
             <h1 className="text-2xl font-bold mb-6">
-              {year}年{monthName}のアーカイブ
+              カテゴリー: {categoryLabel} ({articles.length}件)
             </h1>
 
             {articles.length === 0 ? (
               <div className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
-                この月の記事はありません。
+                このカテゴリーの記事はありません。
               </div>
             ) : (
               articles.map((article) => (
@@ -48,24 +53,18 @@ export default async function ArchivePage({ params }: { params: { year: string; 
                 >
                   <div className="flex flex-col gap-4 sm:gap-6">
                     <div className="w-full relative">
-                      <div className="relative">
-                        <Link
-                          href={`/category/${encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))}`}
-                        >
-                          <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1 z-10">
-                            {article.category}
-                          </span>
-                        </Link>
-                        <Link href={`/articles/${article.slug}`}>
-                          <Image
-                            src={article.image || '/placeholder.svg'}
-                            alt={article.title}
-                            width={600}
-                            height={300}
-                            className="w-full h-48 sm:h-64 object-cover rounded"
-                          />
-                        </Link>
-                      </div>
+                      <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1 z-10">
+                        {article.category}
+                      </span>
+                      <Link href={`/articles/${article.slug}`}>
+                        <Image
+                          src={article.image || '/placeholder.svg'}
+                          alt={article.title}
+                          width={600}
+                          height={300}
+                          className="w-full h-48 sm:h-64 object-cover rounded"
+                        />
+                      </Link>
                     </div>
                     <div className="w-full">
                       <Link href={`/articles/${article.slug}`}>
@@ -76,13 +75,7 @@ export default async function ArchivePage({ params }: { params: { year: string; 
                       <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 line-clamp-3">
                         {article.excerpt}
                       </p>
-                      <div className="flex justify-between items-center">
-                        <Link
-                          href={`/category/${encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))}`}
-                          className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                        >
-                          {article.category}
-                        </Link>
+                      <div className="flex justify-end">
                         <span className="text-xs text-gray-500 dark:text-gray-400">© {article.date}</span>
                       </div>
                     </div>
@@ -94,7 +87,7 @@ export default async function ArchivePage({ params }: { params: { year: string; 
         </main>
 
         <div className="w-full md:w-1/3 order-1 md:order-2 mb-6 md:mb-0">
-          <Sidebar recentArticles={articles} categories={categories} />
+          <Sidebar recentArticles={allArticles} categories={categories} />
         </div>
       </div>
     </div>
