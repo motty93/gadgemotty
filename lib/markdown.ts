@@ -17,6 +17,8 @@ export type ArticleData = {
   category: string
   categoryLabel: string
   date: string
+  createdAt: string
+  updatedAt: string
   image: string
   year: number
   month: number
@@ -83,6 +85,8 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       category: data.category || '',
       categoryLabel: data.categoryLabel || data.category || '',
       date: data.date,
+      createdAt: data.createdAt || data.date,
+      updatedAt: data.updatedAt || data.date,
       image: data.image || '/placeholder.svg?height=400&width=600',
       year,
       month,

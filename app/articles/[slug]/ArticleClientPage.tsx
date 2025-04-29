@@ -6,7 +6,7 @@ import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
 import { TableOfContents } from '@/components/table-of-contents'
 import { ArticleData } from '@/lib/markdown'
-import { Calendar, Tag } from 'lucide-react'
+import { Calendar, RefreshCw, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef } from 'react'
@@ -29,6 +29,7 @@ export default function ArticleClientPage({
   categories,
 }: ArticleClientPageProps) {
   const categorySlug = encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))
+  const isUpdated = article.createdAt !== article.updatedAt
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
@@ -48,11 +49,17 @@ export default function ArticleClientPage({
               </Link>
               <h1 className="text-2xl sm:text-3xl font-bold mb-4">{article.title}</h1>
 
-              <div className="flex items-center text-gray-500 text-sm mb-6 dark:text-gray-400">
+              <div className="flex flex-wrap items-center text-gray-500 text-sm mb-6 dark:text-gray-400 gap-y-2">
                 <div className="flex items-center mr-4">
                   <Calendar className="h-4 w-4 mr-1" />
-                  <span>{article.date}</span>
+                  <span>作成日: {article.createdAt}</span>
                 </div>
+                {isUpdated && (
+                  <div className="flex items-center mr-4">
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    <span>更新日: {article.updatedAt}</span>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <Tag className="h-4 w-4 mr-1" />
                   <Link
