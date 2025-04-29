@@ -1,11 +1,12 @@
 'use client'
 
+import { Breadcrumb } from '@/components/breadcrumb'
 import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
 import { TableOfContents } from '@/components/table-of-contents'
 import { ArticleData } from '@/lib/markdown'
-import { ArrowLeft, Calendar, Tag } from 'lucide-react'
+import { Calendar, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef } from 'react'
@@ -37,13 +38,7 @@ export default function ArticleClientPage({
       <div className="flex flex-col md:flex-row gap-6 md:gap-8">
         <main className="w-full md:w-2/3">
           <article className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-black flex items-center mb-6 dark:text-gray-300 dark:hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              ホームに戻る
-            </Link>
+            <Breadcrumb title={article.title} />
 
             <div className="mb-6">
               <Link href={`/category/${categorySlug}`}>

@@ -35,7 +35,7 @@ export default async function Home() {
                       <Image
                         src={article.image || '/placeholder.svg'}
                         alt={article.title}
-                        width={600}
+                        width={400}
                         height={300}
                         className="w-full h-48 sm:h-64 object-cover rounded"
                       />
