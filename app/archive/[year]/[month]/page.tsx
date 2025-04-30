@@ -45,7 +45,7 @@ export default async function ArchivePage({ params }: { params: { year: string; 
                 {articles.map((article) => (
                   <article
                     key={article.slug}
-                    className="border dark:border-gray-700 rounded-lg overflow-hidden h-full flex flex-col"
+                    className="border dark:border-gray-700 overflow-hidden h-full flex flex-col"
                   >
                     <div className="relative">
                       <Link
@@ -55,6 +55,9 @@ export default async function ArchivePage({ params }: { params: { year: string; 
                           {article.category}
                         </span>
                       </Link>
+                      <span className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-xs px-2 py-1 z-10">
+                        {article.createdAt}
+                      </span>
                       <Link href={`/articles/${article.slug}`}>
                         <Image
                           src={article.image || '/placeholder.svg'}
@@ -74,15 +77,6 @@ export default async function ArchivePage({ params }: { params: { year: string; 
                       <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 excerpt-truncate flex-grow">
                         {article.excerpt}
                       </p>
-                      <div className="flex justify-between items-center mt-auto">
-                        <Link
-                          href={`/category/${encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))}`}
-                          className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                        >
-                          {article.category}
-                        </Link>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">© {article.date}</span>
-                      </div>
                     </div>
                   </article>
                 ))}

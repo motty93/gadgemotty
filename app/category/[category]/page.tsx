@@ -50,11 +50,18 @@ export default async function CategoryPage({ params }: { params: { category: str
                 {articles.map((article) => (
                   <article
                     key={article.slug}
-                    className="border dark:border-gray-700 rounded-lg overflow-hidden h-full flex flex-col"
+                    className="border dark:border-gray-700 overflow-hidden h-full flex flex-col"
                   >
                     <div className="relative">
-                      <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1">
-                        {article.category}
+                      <Link
+                        href={`/category/${encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))}`}
+                      >
+                        <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1">
+                          {article.category}
+                        </span>
+                      </Link>
+                      <span className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-xs px-2 py-1 z-10">
+                        {article.createdAt}
                       </span>
                       <Link href={`/articles/${article.slug}`}>
                         <Image
@@ -75,9 +82,6 @@ export default async function CategoryPage({ params }: { params: { category: str
                       <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 excerpt-truncate flex-grow">
                         {article.excerpt}
                       </p>
-                      <div className="flex justify-end mt-auto">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">© {article.date}</span>
-                      </div>
                     </div>
                   </article>
                 ))}
