@@ -46,42 +46,42 @@ export default async function CategoryPage({ params }: { params: { category: str
                 このカテゴリーの記事はありません。
               </div>
             ) : (
-              articles.map((article) => (
-                <article
-                  key={article.slug}
-                  className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white"
-                >
-                  <div className="flex flex-col gap-4 sm:gap-6">
-                    <div className="w-full relative">
-                      <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1 z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {articles.map((article) => (
+                  <article
+                    key={article.slug}
+                    className="border dark:border-gray-700 rounded-lg overflow-hidden h-full flex flex-col"
+                  >
+                    <div className="relative">
+                      <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1">
                         {article.category}
                       </span>
                       <Link href={`/articles/${article.slug}`}>
                         <Image
                           src={article.image || '/placeholder.svg'}
                           alt={article.title}
-                          width={600}
-                          height={300}
-                          className="w-full h-48 sm:h-64 object-cover rounded"
+                          width={300}
+                          height={200}
+                          className="w-full h-40 object-cover"
                         />
                       </Link>
                     </div>
-                    <div className="w-full">
+                    <div className="p-4 flex flex-col flex-grow">
                       <Link href={`/articles/${article.slug}`}>
-                        <h2 className="text-xl font-bold mb-2 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">
+                        <h2 className="text-lg font-bold mb-2 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">
                           {article.title}
                         </h2>
                       </Link>
-                      <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 line-clamp-3">
+                      <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 excerpt-truncate flex-grow">
                         {article.excerpt}
                       </p>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end mt-auto">
                         <span className="text-xs text-gray-500 dark:text-gray-400">© {article.date}</span>
                       </div>
                     </div>
-                  </div>
-                </article>
-              ))
+                  </article>
+                ))}
+              </div>
             )}
           </div>
         </main>
