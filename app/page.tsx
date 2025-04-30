@@ -41,7 +41,7 @@ export default async function Home() {
                           alt={article.title}
                           width={600}
                           height={300}
-                          className="w-full h-40 object-cover rounded"
+                          className="w-full h-40 object-cover"
                         />
                       </Link>
                     </div>

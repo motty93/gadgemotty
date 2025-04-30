@@ -81,7 +81,6 @@ export default function ArticleClientPage({
                 className="w-full rounded mb-6"
               />
 
-              {/* 目次をここに追加 */}
               <ArticleContent content={article.content} />
             </div>
 
@@ -129,7 +128,6 @@ export default function ArticleClientPage({
   )
 }
 
-// 記事コンテンツと目次を表示するクライアントコンポーネント
 function ArticleContent({ content }: { content: string }) {
   const contentRef = useRef<HTMLDivElement>(null)
 
