@@ -9,9 +9,28 @@ import Link from 'next/link'
 // 月の名前（日本語）
 const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
 
+export async function generateStaticParams() {
+  const articles = await getAllArticles()
+
+  const yearMonthSet = new Set<string>()
+
+  for (const article of articles) {
+    const yearMonth = `${article.year}-${article.month}`
+    yearMonthSet.add(yearMonth)
+  }
+
+  const params = Array.from(yearMonthSet).map((yearMonth) => {
+    const [year, month] = yearMonth.split('-')
+    return { year, month: month.padStart(2, '0') }
+  })
+
+  return params
+}
+
 export default async function ArchivePage({ params }: { params: { year: string; month: string } }) {
-  const year = Number.parseInt(params.year)
-  const month = Number.parseInt(params.month)
+  const resolvedParams = await params
+  const year = Number.parseInt(resolvedParams.year)
+  const month = Number.parseInt(resolvedParams.month)
   const articles = await getArticlesByYearMonth(year, month)
   const allArticles = await getAllArticles()
   const categories = await getAllCategories()

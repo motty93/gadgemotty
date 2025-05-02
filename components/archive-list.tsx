@@ -91,7 +91,7 @@ export function ArchiveList({ articles }: ArchiveListProps) {
               {yearData.months.map((monthData) => (
                 <li key={`${yearData.year}-${monthData.month}`}>
                   <Link
-                    href={`/archive/${yearData.year}/${monthData.month}`}
+                    href={`/archive/${yearData.year}/${monthData.month.toString().padStart(2, '0')}`}
                     className="text-gray-700 hover:text-black flex items-center justify-between dark:text-gray-300 dark:hover:text-white py-1"
                   >
                     <span>{monthData.monthName}</span>
