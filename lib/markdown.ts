@@ -3,6 +3,22 @@ import path from 'path'
 import matter from 'gray-matter'
 import { remark } from 'remark'
 import html from 'remark-html'
+import type { BundledArticles } from './types'
+
+// Cloudflare Workers環境かどうかを検出
+const isCloudflareWorkers =
+  typeof process.env.CLOUDFLARE !== 'undefined' || typeof globalThis.caches !== 'undefined'
+
+// バンドルされた記事データ
+let bundledArticles: BundledArticles = []
+if (isCloudflareWorkers) {
+  try {
+    // 静的インポートを使用
+    bundledArticles = require('./bundled-articles.json')
+  } catch (e) {
+    console.warn('Bundled articles not found. Running in development mode?')
+  }
+}
 
 // コンテンツディレクトリのパス
 const contentDirectory = path.join(process.cwd(), 'content')
@@ -32,7 +48,15 @@ export type CategoryInfo = {
 
 // 全記事のslugを取得
 export async function getAllArticleSlugs() {
-  // content/articlesディレクトリが存在しない場合は作成
+  if (isCloudflareWorkers) {
+    return bundledArticles.map((article) => ({
+      params: {
+        slug: article.slug,
+      },
+    }))
+  }
+
+  // ローカル開発環境
   if (!fs.existsSync(articlesDirectory)) {
     fs.mkdirSync(articlesDirectory, { recursive: true })
     return []
@@ -50,33 +74,55 @@ export async function getAllArticleSlugs() {
 
 // 特定の記事データを取得
 export async function getArticleData(slug: string): Promise<ArticleData | undefined> {
+  if (isCloudflareWorkers) {
+    const article = bundledArticles.find((a) => a.slug === slug)
+
+    if (!article) {
+      return undefined
+    }
+
+    const processedContent = await remark().use(html).process(article.content)
+    const contentHtml = processedContent.toString()
+
+    const dateObj = new Date(article.date)
+    const year = dateObj.getFullYear()
+    const month = dateObj.getMonth() + 1
+
+    return {
+      slug: article.slug,
+      title: article.title,
+      excerpt: article.excerpt || '',
+      content: contentHtml,
+      category: article.category || '',
+      categoryLabel: article.categoryLabel || article.category || '',
+      date: article.date,
+      createdAt: article.createdAt || article.date,
+      updatedAt: article.updatedAt || article.date,
+      image: article.image || '/placeholder.svg?height=400&width=600',
+      year,
+      month,
+    }
+  }
+
+  // ローカル開発環境
   try {
     const fullPath = path.join(articlesDirectory, `${slug}.mdx`)
-
-    // ファイルが存在しない場合は.mdを試す
     const mdxExists = fs.existsSync(fullPath)
     const filePath = mdxExists ? fullPath : path.join(articlesDirectory, `${slug}.md`)
 
-    // ファイルが存在しない場合はundefinedを返す
     if (!fs.existsSync(filePath)) {
       return undefined
     }
 
     const fileContents = fs.readFileSync(filePath, 'utf8')
-
-    // マークダウンのフロントマターをパース
     const { data, content } = matter(fileContents)
-
-    // Markdownをコンテンツに変換
     const processedContent = await remark().use(html).process(content)
     const contentHtml = processedContent.toString()
 
-    // 日付からyearとmonthを取得
     const dateObj = new Date(data.date)
     const year = dateObj.getFullYear()
-    const month = dateObj.getMonth() + 1 // JavaScriptの月は0から始まるので+1
+    const month = dateObj.getMonth() + 1
 
-    // 記事データを返す
     return {
       slug,
       title: data.title,
@@ -99,7 +145,15 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
 
 // 全記事のデータを取得
 export async function getAllArticles(): Promise<ArticleData[]> {
-  // content/articlesディレクトリが存在しない場合は作成
+  if (isCloudflareWorkers) {
+    const allArticlesData = await Promise.all(bundledArticles.map((article) => getArticleData(article.slug)))
+
+    return allArticlesData
+      .filter((article): article is ArticleData => article !== undefined)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  }
+
+  // ローカル開発環境
   if (!fs.existsSync(articlesDirectory)) {
     fs.mkdirSync(articlesDirectory, { recursive: true })
     return []
@@ -114,7 +168,6 @@ export async function getAllArticles(): Promise<ArticleData[]> {
     }),
   )
 
-  // 日付でソート（新しい順）
   return allArticlesData
     .filter((article): article is ArticleData => article !== undefined)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -135,12 +188,10 @@ export async function getRelatedArticles(currentSlug: string, limit = 3): Promis
     return allArticles.filter((article) => article.slug !== currentSlug).slice(0, limit)
   }
 
-  // 同じカテゴリの記事を優先
   const sameCategory = allArticles.filter(
     (article) => article.slug !== currentSlug && article.category === currentArticle.category,
   )
 
-  // 同じカテゴリの記事だけで足りない場合は他のカテゴリから追加
   const otherArticles = allArticles.filter(
     (article) => article.slug !== currentSlug && article.category !== currentArticle.category,
   )
@@ -204,7 +255,6 @@ export async function getAllCategories(): Promise<CategoryInfo[]> {
     .sort((a, b) => a.label.localeCompare(b.label))
 }
 
-// カテゴリー別の記事を取得
 export async function getArticlesByCategory(categorySlug: string): Promise<ArticleData[]> {
   const articles = await getAllArticles()
 
@@ -214,7 +264,6 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
   })
 }
 
-// カテゴリースラグからラベルを取得
 export async function getCategoryLabel(categorySlug: string): Promise<string> {
   const categories = await getAllCategories()
   const category = categories.find((cat) => cat.slug === categorySlug)

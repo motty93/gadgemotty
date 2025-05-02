@@ -8,5 +8,11 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  "vars": {
+    "ENVIRONMENT": "production"
+  },
+  "build": {
+    "command": "bun run build"
   }
 }

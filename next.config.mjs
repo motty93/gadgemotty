@@ -10,7 +10,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    runtime: 'edge',
+    serverActions: true,
   },
 }
 

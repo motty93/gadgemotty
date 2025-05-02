@@ -21,7 +21,12 @@ yarn-error.log*
 
 # vercel
 .vercel
+.open-next
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated files
+lib/bundled-articles.json
+lib/bundled-articles.d.ts
