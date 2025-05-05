@@ -38,6 +38,7 @@ export type ArticleData = {
   image: string
   year: number
   month: number
+  featured: boolean // おすすめかどうか
 }
 
 export type CategoryInfo = {
@@ -101,6 +102,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       image: article.image || '/placeholder.svg?height=400&width=600',
       year,
       month,
+      featured: article.featured || false,
     }
   }
 
@@ -136,6 +138,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       image: data.image || '/placeholder.svg?height=400&width=600',
       year,
       month,
+      featured: data.featured || false,
     }
   } catch (error) {
     console.error(`Error fetching article data for ${slug}:`, error)
@@ -171,6 +174,13 @@ export async function getAllArticles(): Promise<ArticleData[]> {
   return allArticlesData
     .filter((article): article is ArticleData => article !== undefined)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+}
+
+// おすすめ記事を取得
+export async function getFeaturedArticles(): Promise<ArticleData[]> {
+  const articles = await getAllArticles()
+
+  return articles.filter((article) => article.featured)
 }
 
 // 特定の年月の記事を取得
@@ -262,6 +272,12 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
     const articleCategorySlug = encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))
     return articleCategorySlug === categorySlug
   })
+}
+
+export async function getFeaturedArticlesByCategory(categorySlug: string): Promise<ArticleData[]> {
+  const articles = await getArticlesByCategory(categorySlug)
+
+  return articles.filter((article) => article.featured)
 }
 
 export async function getCategoryLabel(categorySlug: string): Promise<string> {

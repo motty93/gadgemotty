@@ -1,7 +1,15 @@
+import { FeaturedCarousel } from '@/components/featured-carousel'
 import { Header } from '@/components/header'
+import { SectionTitle } from '@/components/section-title'
 import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
-import { getAllArticles, getAllCategories, getArticlesByCategory, getCategoryLabel } from '@/lib/markdown'
+import {
+  getAllArticles,
+  getAllCategories,
+  getArticlesByCategory,
+  getCategoryLabel,
+  getFeaturedArticlesByCategory,
+} from '@/lib/markdown'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -21,6 +29,8 @@ export default async function CategoryPage({ params }: { params: { category: str
   const allArticles = await getAllArticles()
   const categories = await getAllCategories()
   const categoryLabel = await getCategoryLabel(categorySlug)
+  const featuredArticles = await getFeaturedArticlesByCategory(categorySlug)
+  const articlesToFeature = featuredArticles.length > 0 ? featuredArticles : articles.slice(0, 5)
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
@@ -46,46 +56,58 @@ export default async function CategoryPage({ params }: { params: { category: str
                 このカテゴリーの記事はありません。
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {articles.map((article) => (
-                  <article
-                    key={article.slug}
-                    className="border dark:border-gray-700 overflow-hidden h-full flex flex-col"
-                  >
-                    <div className="relative">
-                      <Link
-                        href={`/category/${encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))}`}
+              <>
+                {articlesToFeature.length > 0 && (
+                  <div className="mb-8">
+                    <SectionTitle>おすすめ記事</SectionTitle>
+                    <FeaturedCarousel articles={articlesToFeature} />
+                  </div>
+                )}
+
+                <div>
+                  <SectionTitle>すべての記事</SectionTitle>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {articles.map((article) => (
+                      <article
+                        key={article.slug}
+                        className="border dark:border-gray-700 overflow-hidden h-full flex flex-col"
                       >
-                        <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1">
-                          {article.category}
-                        </span>
-                      </Link>
-                      <span className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-xs px-2 py-1 z-10">
-                        {article.createdAt}
-                      </span>
-                      <Link href={`/articles/${article.slug}`}>
-                        <Image
-                          src={article.image || '/placeholder.svg'}
-                          alt={article.title}
-                          width={300}
-                          height={200}
-                          className="w-full h-40 object-cover"
-                        />
-                      </Link>
-                    </div>
-                    <div className="p-4 flex flex-col flex-grow">
-                      <Link href={`/articles/${article.slug}`}>
-                        <h2 className="text-lg font-bold mb-2 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">
-                          {article.title}
-                        </h2>
-                      </Link>
-                      <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 excerpt-truncate flex-grow">
-                        {article.excerpt}
-                      </p>
-                    </div>
-                  </article>
-                ))}
-              </div>
+                        <div className="relative">
+                          <Link
+                            href={`/category/${encodeURIComponent(article.category.toLowerCase().replace(/\s+/g, '-'))}`}
+                          >
+                            <span className="absolute top-0 left-0 bg-gray-500 text-white text-xs px-2 py-1">
+                              {article.category}
+                            </span>
+                          </Link>
+                          <span className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-xs px-2 py-1 z-10">
+                            {article.createdAt}
+                          </span>
+                          <Link href={`/articles/${article.slug}`}>
+                            <Image
+                              src={article.image || '/placeholder.svg'}
+                              alt={article.title}
+                              width={300}
+                              height={200}
+                              className="w-full h-40 object-cover"
+                            />
+                          </Link>
+                        </div>
+                        <div className="p-4 flex flex-col flex-grow">
+                          <Link href={`/articles/${article.slug}`}>
+                            <h2 className="text-lg font-bold mb-2 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2">
+                              {article.title}
+                            </h2>
+                          </Link>
+                          <p className="text-sm text-gray-700 mb-4 dark:text-gray-300 excerpt-truncate flex-grow">
+                            {article.excerpt}
+                          </p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </main>

@@ -9,6 +9,7 @@ export interface BundledArticle {
   createdAt?: string
   updatedAt?: string
   image?: string
+  featured?: boolean
 }
 
 export type BundledArticles = BundledArticle[]
