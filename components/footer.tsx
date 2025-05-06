@@ -32,12 +32,16 @@ export function Footer() {
                 </Link>
               </li>
               <li className="w-full md:w-auto py-3 md:py-0">
+                {/*
                 <Link
                   href="/contact"
                   className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white text-xs block py-1"
                 >
-                  お問い合わせ
-                </Link>
+                  お問い合わせ(工事中)
+                </Link>*/}
+                <p className="text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white text-xs block py-1">
+                  お問い合わせ(工事中)
+                </p>
               </li>
             </ul>
           </nav>
@@ -46,7 +50,7 @@ export function Footer() {
             Copyright &copy; 2025
             <Link
               href="/"
-              className="inline mx-2 text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white text-xs block py-1"
+              className="inline mx-2 text-blue-600 hover:text-black dark:text-gray-300 dark:hover:text-white text-xs block py-1"
             >
               ガジェモティ
             </Link>
