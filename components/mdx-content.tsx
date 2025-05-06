@@ -2,9 +2,16 @@
 
 import { TableOfContents } from '@/components/table-of-contents'
 import { MDXRemote } from 'next-mdx-remote'
+import dynamic from 'next/dynamic'
 import React, { useRef } from 'react'
+import { CustomAlert } from './custom-alert'
 
-// 型安全なコンポーネント定義
+interface MDXContentProps {
+  source: any
+}
+
+const CustomImage = dynamic(() => import('./custom-image'), { ssr: false })
+
 const components = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1 className="text-3xl font-bold my-4" {...props} />
@@ -22,19 +29,14 @@ const components = {
   h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h4 className="text-base font-bold mt-4 mb-2" id={props.id} {...props} />
   ),
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img className="rounded-lg my-4 mx-auto" {...props} />
-  ),
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <CustomImage {...props} />,
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a className="text-blue-600 hover:underline dark:text-blue-400" {...props} />
   ),
   code: (props: React.HTMLAttributes<HTMLElement>) => (
     <code className="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded" {...props} />
   ),
-}
-
-interface MDXContentProps {
-  source: any
+  CustomAlert,
 }
 
 export function MDXContent({ source }: MDXContentProps) {
