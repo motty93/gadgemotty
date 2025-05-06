@@ -1,3 +1,4 @@
+import CategoryPage from '@/app/category/[category]/category-page'
 import {
   getAllArticles,
   getAllCategories,
@@ -5,20 +6,29 @@ import {
   getFeaturedArticlesByCategory,
   getPaginatedArticlesByCategory,
 } from '@/lib/markdown'
-import CategoryPage from './category-page'
+import { redirect } from 'next/navigation'
 
-// 動的ルーティングのためのパラメータを生成
-export async function generateStaticParams() {
-  const categories = await getAllCategories()
-  return categories.map((category) => ({
-    category: category.slug,
-  }))
-}
-
-export default async function CategoryPageWrapper({ params }: { params: { category: string } }) {
+export default async function PaginatedCategoryPage({
+  params,
+}: { params: { category: string; page: string } }) {
   const resolvedParams = await params
   const categorySlug = resolvedParams.category
-  const { articles, totalPages, currentPage } = await getPaginatedArticlesByCategory(categorySlug, 1)
+  const page = Number.parseInt(resolvedParams.page, 10)
+
+  // ページ番号が無効な場合はリダイレクト
+  if (isNaN(page) || page < 1) {
+    redirect(`/category/${categorySlug}`)
+  }
+
+  const { articles, totalPages, currentPage } = await getPaginatedArticlesByCategory(categorySlug, page)
+
+  // 存在しないページの場合はリダイレクト
+  if (currentPage !== page) {
+    redirect(
+      currentPage === 1 ? `/category/${categorySlug}` : `/category/${categorySlug}/page/${currentPage}`,
+    )
+  }
+
   const allArticles = await getAllArticles()
   const categories = await getAllCategories()
   const categoryLabel = await getCategoryLabel(categorySlug)

@@ -285,3 +285,52 @@ export async function getCategoryLabel(categorySlug: string): Promise<string> {
   const category = categories.find((cat) => cat.slug === categorySlug)
   return category ? category.label : categorySlug
 }
+
+// ページネーション用の記事を取得
+export async function getPaginatedArticles(
+  page = 1,
+  limit = 20,
+): Promise<{
+  articles: ArticleData[]
+  totalPages: number
+  currentPage: number
+}> {
+  const allArticles = await getAllArticles()
+  const totalPages = Math.ceil(allArticles.length / limit)
+  const currentPage = Math.min(Math.max(1, page), totalPages) // 1〜totalPagesの範囲に制限
+
+  const startIndex = (currentPage - 1) * limit
+  const endIndex = startIndex + limit
+  const paginatedArticles = allArticles.slice(startIndex, endIndex)
+
+  return {
+    articles: paginatedArticles,
+    totalPages,
+    currentPage,
+  }
+}
+
+// カテゴリー別のページネーション記事を取得
+export async function getPaginatedArticlesByCategory(
+  categorySlug: string,
+  page = 1,
+  limit = 20,
+): Promise<{
+  articles: ArticleData[]
+  totalPages: number
+  currentPage: number
+}> {
+  const allCategoryArticles = await getArticlesByCategory(categorySlug)
+  const totalPages = Math.ceil(allCategoryArticles.length / limit)
+  const currentPage = Math.min(Math.max(1, page), totalPages || 1) // 1〜totalPagesの範囲に制限
+
+  const startIndex = (currentPage - 1) * limit
+  const endIndex = startIndex + limit
+  const paginatedArticles = allCategoryArticles.slice(startIndex, endIndex)
+
+  return {
+    articles: paginatedArticles,
+    totalPages,
+    currentPage,
+  }
+}
