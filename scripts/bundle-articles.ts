@@ -1,22 +1,28 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { serialize } from 'next-mdx-remote/serialize'
 
-function bundleArticles() {
+async function bundleArticles() {
   const articlesDirectory = path.join(process.cwd(), 'content', 'articles')
   const fileNames = fs.readdirSync(articlesDirectory)
 
-  const articles = fileNames.map((fileName) => {
-    const filePath = path.join(articlesDirectory, fileName)
-    const fileContents = fs.readFileSync(filePath, 'utf8')
-    const { data, content } = matter(fileContents)
+  const articles = await Promise.all(
+    fileNames.map(async (fileName) => {
+      const filePath = path.join(articlesDirectory, fileName)
+      const fileContents = fs.readFileSync(filePath, 'utf8')
+      const { data, content } = matter(fileContents)
 
-    return {
-      slug: fileName.replace(/\.mdx?$/, ''),
-      content: content,
-      ...data,
-    }
-  })
+      const mdxSource = await serialize(content)
+
+      return {
+        slug: fileName.replace(/\.mdx?$/, ''),
+        content,
+        mdxSource,
+        ...data,
+      }
+    }),
+  )
 
   // JSONファイルとして出力
   const outputPath = path.join(process.cwd(), 'lib', 'bundled-articles.json')
@@ -35,4 +41,4 @@ export default bundledArticles;
   console.log(`Generated type definitions at ${typeDefPath}`)
 }
 
-bundleArticles()
+bundleArticles().catch(console.error)

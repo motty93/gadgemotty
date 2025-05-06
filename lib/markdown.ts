@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { remark } from 'remark'
-import html from 'remark-html'
+import { MDXRemoteSerializeResult } from 'next-mdx-remote'
+import { serialize } from 'next-mdx-remote/serialize'
 import type { BundledArticles } from './types'
 
 // Cloudflare Workers環境かどうかを検出
@@ -29,7 +29,7 @@ export type ArticleData = {
   slug: string
   title: string
   excerpt: string
-  content: string
+  content: MDXRemoteSerializeResult | string
   category: string
   categoryLabel: string
   date: string
@@ -82,9 +82,8 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       return undefined
     }
 
-    const processedContent = await remark().use(html).process(article.content)
-    const contentHtml = processedContent.toString()
-
+    // MDXにシリアライズ
+    const contentHtml = await serialize(article.content)
     const dateObj = new Date(article.date)
     const year = dateObj.getFullYear()
     const month = dateObj.getMonth() + 1
@@ -118,8 +117,9 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
 
     const fileContents = fs.readFileSync(filePath, 'utf8')
     const { data, content } = matter(fileContents)
-    const processedContent = await remark().use(html).process(content)
-    const contentHtml = processedContent.toString()
+
+    // MDXにシリアライズ
+    const contentHtml = await serialize(content)
 
     const dateObj = new Date(data.date)
     const year = dateObj.getFullYear()
@@ -223,7 +223,7 @@ export async function searchArticles(query: string): Promise<ArticleData[]> {
       ${article.title.toLowerCase()}
       ${article.excerpt.toLowerCase()}
       ${article.category.toLowerCase()}
-      ${article.content.toLowerCase()}
+      ${typeof article.content === 'string' ? article.content.toLowerCase() : article.content}
     `
 
     return searchTerms.every((term) => searchableText.includes(term))
