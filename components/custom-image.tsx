@@ -9,6 +9,7 @@ export default function CustomImage(props: React.ImgHTMLAttributes<HTMLImageElem
   const { src, alt = '', width, height, ...rest } = props
   const [open, setOpen] = useState(false)
 
+  if (!src) return null
   if (typeof src !== 'string') return null
 
   return (

@@ -10,7 +10,10 @@ interface MDXContentProps {
   source: any
 }
 
-const CustomImage = dynamic(() => import('./custom-image'), { ssr: false })
+const CustomImage = dynamic(() => import('./custom-image'), {
+  ssr: false,
+  loading: () => <span className="w-full h-40 bg-gray-200 animate-pulse rounded-lg my-6 block" />,
+})
 
 const components = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
