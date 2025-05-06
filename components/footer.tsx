@@ -43,7 +43,14 @@ export function Footer() {
           </nav>
 
           <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Copyright &copy; 2025 ガジェモティ All Rights Reserved
+            Copyright &copy; 2025
+            <Link
+              href="/"
+              className="inline mx-2 text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white text-xs block py-1"
+            >
+              ガジェモティ
+            </Link>
+            All Rights Reserved
           </div>
         </div>
       </div>

@@ -29,13 +29,13 @@ export default async function Home() {
             ) : (
               <>
                 {articlesToFeature.length > 0 && (
-                  <div className="mb-8">
+                  <div className="mt-8">
                     <SectionTitle>おすすめ記事</SectionTitle>
                     <FeaturedCarousel articles={articlesToFeature} />
                   </div>
                 )}
-                <div>
-                  <SectionTitle>新しい記事</SectionTitle>
+                <div className="mt-8">
+                  <SectionTitle>すべての記事</SectionTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {articles.map((article) => (
                       <article
@@ -75,6 +75,12 @@ export default async function Home() {
                     ))}
                   </div>
                 </div>
+                {articlesToFeature.length > 0 && articles.length > 20 && (
+                  <div className="mt-14">
+                    <SectionTitle>おすすめ記事</SectionTitle>
+                    <FeaturedCarousel articles={articlesToFeature} />
+                  </div>
+                )}
               </>
             )}
           </main>

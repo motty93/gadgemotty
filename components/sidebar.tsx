@@ -11,7 +11,7 @@ interface SidebarProps {
 
 export function Sidebar({ recentArticles, categories = [] }: SidebarProps) {
   return (
-    <aside className="space-y-6 md:space-y-8 md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto no-scrollbar">
+    <aside className="mt-8 space-y-6 md:space-y-8 md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto no-scrollbar">
       {/* カテゴリー - モバイルでは常に表示 */}
       <div className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
         <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 pb-2 border-b dark:border-gray-700">
