@@ -70,29 +70,29 @@ export function ArchiveList({ articles }: ArchiveListProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {archiveData.map((yearData) => (
-        <div key={yearData.year} className="space-y-1">
+        <div key={yearData.year} className="space-y-0.5">
           <button
             onClick={() => toggleYear(yearData.year)}
-            className="flex items-center w-full text-left font-medium hover:text-black dark:hover:text-white py-1"
+            className="flex items-center w-full text-left font-medium hover:text-black dark:hover:text-white py-1 text-xs"
             aria-expanded={expandedYears.includes(yearData.year)}
           >
             {expandedYears.includes(yearData.year) ? (
-              <ChevronDown className="h-4 w-4 mr-1 flex-shrink-0" />
+              <ChevronDown className="h-3 w-3 mr-1.5 flex-shrink-0" />
             ) : (
-              <ChevronRight className="h-4 w-4 mr-1 flex-shrink-0" />
+              <ChevronRight className="h-3 w-3 mr-1.5 flex-shrink-0" />
             )}
             {yearData.year}年
           </button>
 
           {expandedYears.includes(yearData.year) && (
-            <ul className="pl-6 space-y-1">
+            <ul className="pl-5 space-y-0.5">
               {yearData.months.map((monthData) => (
                 <li key={`${yearData.year}-${monthData.month}`}>
                   <Link
-                    href={`/archive/${yearData.year}/${monthData.month.toString().padStart(2, '0')}`}
-                    className="text-gray-700 hover:text-black flex items-center justify-between dark:text-gray-300 dark:hover:text-white py-1"
+                    href={`/archive/${yearData.year}/${monthData.month}`}
+                    className="text-gray-700 hover:text-black flex items-center justify-between dark:text-gray-300 dark:hover:text-white py-1 text-xs"
                   >
                     <span>{monthData.monthName}</span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">({monthData.count})</span>

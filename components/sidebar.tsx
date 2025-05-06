@@ -14,18 +14,16 @@ export function Sidebar({ recentArticles, categories = [] }: SidebarProps) {
     <aside className="mt-8 space-y-6 md:space-y-8 md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto no-scrollbar">
       {/* カテゴリー - モバイルでは常に表示 */}
       <div className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
-        <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 pb-2 border-b dark:border-gray-700">
-          カテゴリー
-        </h3>
-        <ul className="space-y-2 sm:space-y-3">
+        <h3 className="text-base font-bold mb-3 pb-2 border-b dark:border-gray-700">カテゴリー</h3>
+        <ul className="space-y-1.5">
           {categories.map((category) => (
             <li key={category.slug}>
               <Link
                 href={`/category/${category.slug}`}
-                className="text-gray-700 hover:text-black flex items-center justify-between dark:text-gray-300 dark:hover:text-white py-1"
+                className="text-gray-700 hover:text-black flex items-center justify-between dark:text-gray-300 dark:hover:text-white py-1 text-xs"
               >
                 <span className="flex items-center">
-                  <ArrowRight className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <ArrowRight className="h-3 w-3 mr-1.5 flex-shrink-0" />
                   <span className="line-clamp-1">{category.label}</span>
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({category.count})</span>
@@ -37,17 +35,15 @@ export function Sidebar({ recentArticles, categories = [] }: SidebarProps) {
 
       {/* 最近の投稿 - モバイルでは常に表示 */}
       <div className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
-        <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 pb-2 border-b dark:border-gray-700">
-          最近の投稿
-        </h3>
-        <ul className="space-y-2 sm:space-y-3">
+        <h3 className="text-base font-bold mb-3 pb-2 border-b dark:border-gray-700">最近の投稿</h3>
+        <ul className="space-y-1.5">
           {recentArticles.slice(0, 5).map((article) => (
             <li key={article.slug}>
               <Link
                 href={`/articles/${article.slug}`}
-                className="text-gray-700 hover:text-black flex items-center dark:text-gray-300 dark:hover:text-white py-1"
+                className="text-gray-700 hover:text-black flex items-center dark:text-gray-300 dark:hover:text-white py-1 text-xs"
               >
-                <ArrowRight className="h-4 w-4 mr-2 flex-shrink-0" />
+                <ArrowRight className="h-3 w-3 mr-1.5 flex-shrink-0" />
                 <span className="line-clamp-1">{article.title}</span>
               </Link>
             </li>
@@ -57,13 +53,11 @@ export function Sidebar({ recentArticles, categories = [] }: SidebarProps) {
 
       {/* アーカイブ - モバイルでは折りたたみ可能 */}
       <div className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
-        <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 pb-2 border-b dark:border-gray-700">
-          アーカイブ
-        </h3>
+        <h3 className="text-base font-bold mb-3 pb-2 border-b dark:border-gray-700">アーカイブ</h3>
         <ArchiveList articles={recentArticles} />
       </div>
 
-      {/* コンテンツ - モバイルでは非表示 */}
+      {/* コンテンツ - モバイルでは非表示
       <div className="hidden md:block bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
         <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 pb-2 border-b dark:border-gray-700">
           コンテンツ
@@ -98,10 +92,11 @@ export function Sidebar({ recentArticles, categories = [] }: SidebarProps) {
           </li>
         </ul>
       </div>
+      */}
 
       {/* 検索ボックス -バイルでは常に表示 */}
       <div className="bg-white p-4 sm:p-6 rounded shadow-sm dark:bg-gray-800 dark:text-white">
-        <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 pb-2 border-b dark:border-gray-700">検索</h3>
+        <h3 className="text-base font-bold mb-3 pb-2 border-b dark:border-gray-700">検索</h3>
         <SearchBox />
       </div>
     </aside>

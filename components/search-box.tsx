@@ -24,7 +24,7 @@ export function SearchBox() {
         placeholder="サイト内検索..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
+        className="w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-xs"
         aria-label="検索"
       />
       <button
