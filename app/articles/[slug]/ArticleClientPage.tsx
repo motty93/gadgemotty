@@ -140,17 +140,34 @@ export function ArticleContent({ content }: { content: string }) {
   const allComponents = useMDXComponents(() => mdxComponents)
 
   const ComponentFactory = useMemo(() => {
-    const fn = new Function('React', ...Object.keys(runtime), `${content}`)
-    return fn({ ...runtime })
-  }, [content])
-  const MDXContent = ComponentFactory.default
-  console.info('MDXContent', MDXContent)
+    try {
+      const wrappedContent = `
+        const {Fragment, jsx, jsxs} = arguments[0];
+        const {wrapper: MDXLayout, ...components} = arguments[1] || {};
+        ${content}
+      `
+
+      const fn = new Function(wrappedContent)
+      const result = fn(runtime, { components: allComponents })
+
+      return result.default || result
+    } catch (error) {
+      console.error('Error in MDX content:', error)
+
+      return () => (
+        <div className="p-4 bg-red-50 text-red-800 rounded border border-red-200">
+          <h3 className="font-bold">コンテンツの読み込みエラー</h3>
+          <p>{error instanceof Error ? error.message : '不明なエラーが発生しました'}</p>
+        </div>
+      )
+    }
+  }, [content, allComponents])
 
   return (
     <>
       <TableOfContents contentRef={contentRef} />
       <div ref={contentRef} className="prose max-w-none dark:prose-invert">
-        <MDXContent components={allComponents} />
+        <ComponentFactory />
       </div>
     </>
   )
