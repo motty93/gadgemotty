@@ -12,6 +12,7 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
+  transpilePackages: ['next-mdx-remote'],
 }
 
 export default nextConfig
