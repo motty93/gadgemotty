@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "prebuild": "tsx scripts/bundle-articles.ts",
+    "dev": "next dev --turbo",
+    "prebuild": "node scripts/bundle-articles.mjs",
     "build": "bun run prebuild && next build",
     "start": "next start",
     "lint": "next lint",
@@ -77,7 +77,6 @@
     "@types/react-dom": "^19",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
-    "tsx": "^4.19.4",
     "typescript": "^5"
   }
 }
