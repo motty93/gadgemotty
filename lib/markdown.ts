@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
+import { compile } from '@mdx-js/mdx'
 import matter from 'gray-matter'
-import { remark } from 'remark'
-import html from 'remark-html'
+import rehypeHighlight from 'rehype-highlight'
+import remarkGfm from 'remark-gfm'
 import type { BundledArticles } from './types'
 
 // Cloudflare Workers環境かどうかを検出
@@ -47,6 +48,20 @@ export type CategoryInfo = {
   count: number
 }
 
+// mdx compile
+export async function compileMdxToJsx(content: string): Promise<string> {
+  const compiled = await compile(content, {
+    jsx: true,
+    outputFormat: 'function-body',
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [rehypeHighlight],
+    format: 'mdx',
+  })
+  console.log(compiled.value)
+
+  return String(compiled.value).replace(/^\s*export\s+default\s+/m, 'return ')
+}
+
 // 全記事のslugを取得
 export async function getAllArticleSlugs() {
   if (isCloudflareWorkers) {
@@ -77,13 +92,7 @@ export async function getAllArticleSlugs() {
 export async function getArticleData(slug: string): Promise<ArticleData | undefined> {
   if (isCloudflareWorkers) {
     const article = bundledArticles.find((a) => a.slug === slug)
-
-    if (!article) {
-      return undefined
-    }
-
-    const processedContent = await remark().use(html).process(article.content)
-    const contentHtml = processedContent.toString()
+    if (!article) return undefined
 
     const dateObj = new Date(article.date)
     const year = dateObj.getFullYear()
@@ -93,7 +102,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       slug: article.slug,
       title: article.title,
       excerpt: article.excerpt || '',
-      content: contentHtml,
+      content: article.content, // jsx string
       category: article.category || '',
       categoryLabel: article.categoryLabel || article.category || '',
       date: article.date,
@@ -118,8 +127,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
 
     const fileContents = fs.readFileSync(filePath, 'utf8')
     const { data, content } = matter(fileContents)
-    const processedContent = await remark().use(html).process(content)
-    const contentHtml = processedContent.toString()
+    const compiledCode = await compileMdxToJsx(content)
 
     const dateObj = new Date(data.date)
     const year = dateObj.getFullYear()
@@ -129,7 +137,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       slug,
       title: data.title,
       excerpt: data.excerpt || '',
-      content: contentHtml,
+      content: compiledCode,
       category: data.category || '',
       categoryLabel: data.categoryLabel || data.category || '',
       date: data.date,

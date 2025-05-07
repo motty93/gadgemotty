@@ -1,22 +1,37 @@
 import fs from 'fs'
 import path from 'path'
+import { compile } from '@mdx-js/mdx'
 import matter from 'gray-matter'
+import rehypeHighlight from 'rehype-highlight'
+import remarkGfm from 'remark-gfm'
 
-function bundleArticles() {
+async function bundleArticles() {
   const articlesDirectory = path.join(process.cwd(), 'content', 'articles')
   const fileNames = fs.readdirSync(articlesDirectory)
 
-  const articles = fileNames.map((fileName) => {
-    const filePath = path.join(articlesDirectory, fileName)
-    const fileContents = fs.readFileSync(filePath, 'utf8')
-    const { data, content } = matter(fileContents)
+  const articles = await Promise.all(
+    fileNames.map(async (fileName) => {
+      const filePath = path.join(articlesDirectory, fileName)
+      const fileContents = fs.readFileSync(filePath, 'utf8')
+      const { data, content } = matter(fileContents)
 
-    return {
-      slug: fileName.replace(/\.mdx?$/, ''),
-      content: content,
-      ...data,
-    }
-  })
+      const compiled = await compile(content, {
+        jsx: true,
+        outputFormat: 'function-body',
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeHighlight],
+        format: 'mdx',
+      })
+
+      const compiledCode = String(compiled.value).replace(/^export default /, 'return ')
+
+      return {
+        slug: fileName.replace(/\.mdx?$/, ''),
+        content: compiledCode,
+        ...data,
+      }
+    }),
+  )
 
   // JSONファイルとして出力
   const outputPath = path.join(process.cwd(), 'lib', 'bundled-articles.json')
@@ -35,4 +50,4 @@ export default bundledArticles;
   console.log(`Generated type definitions at ${typeDefPath}`)
 }
 
-bundleArticles()
+bundleArticles().catch((error) => console.error(error))
