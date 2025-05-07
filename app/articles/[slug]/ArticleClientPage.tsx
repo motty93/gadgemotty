@@ -3,25 +3,24 @@
 import { Breadcrumb } from '@/components/breadcrumb'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
-import { MDXContent } from '@/components/mdx-content'
 import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
+import { TableOfContents } from '@/components/table-of-contents'
 import { ArticleData } from '@/lib/markdown'
 import { Calendar, RefreshCw, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-
-type Category = {
-  slug: string
-  label: string
-  count: number
-}
+import { useRef } from 'react'
 
 interface ArticleClientPageProps {
   article: ArticleData
   relatedArticles: ArticleData[]
   allArticles: ArticleData[]
-  categories: Category[]
+  categories: Array<{
+    slug: string
+    label: string
+    count: number
+  }>
 }
 
 export default function ArticleClientPage({
@@ -84,7 +83,7 @@ export default function ArticleClientPage({
                   className="w-full rounded mb-6"
                 />
 
-                <MDXContent source={article.content} />
+                <ArticleContent content={article.content} />
               </div>
 
               <div className="border-t pt-4 flex justify-between items-center dark:border-gray-700">
@@ -130,5 +129,20 @@ export default function ArticleClientPage({
       </div>
       <Footer />
     </div>
+  )
+}
+
+function ArticleContent({ content }: { content: string }) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  return (
+    <>
+      <TableOfContents contentRef={contentRef} />
+      <div
+        ref={contentRef}
+        className="prose max-w-none dark:prose-invert"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+    </>
   )
 }
