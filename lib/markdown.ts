@@ -1,8 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { remark } from 'remark'
-import html from 'remark-html'
 import type { BundledArticles } from './types'
 
 // Cloudflare Workers環境かどうかを検出
@@ -77,13 +75,7 @@ export async function getAllArticleSlugs() {
 export async function getArticleData(slug: string): Promise<ArticleData | undefined> {
   if (isCloudflareWorkers) {
     const article = bundledArticles.find((a) => a.slug === slug)
-
-    if (!article) {
-      return undefined
-    }
-
-    const processedContent = await remark().use(html).process(article.content)
-    const contentHtml = processedContent.toString()
+    if (!article) return undefined
 
     const dateObj = new Date(article.date)
     const year = dateObj.getFullYear()
@@ -93,7 +85,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       slug: article.slug,
       title: article.title,
       excerpt: article.excerpt || '',
-      content: contentHtml,
+      content: article.content,
       category: article.category || '',
       categoryLabel: article.categoryLabel || article.category || '',
       date: article.date,
@@ -108,18 +100,13 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
 
   // ローカル開発環境
   try {
-    const fullPath = path.join(articlesDirectory, `${slug}.mdx`)
-    const mdxExists = fs.existsSync(fullPath)
-    const filePath = mdxExists ? fullPath : path.join(articlesDirectory, `${slug}.md`)
-
-    if (!fs.existsSync(filePath)) {
-      return undefined
-    }
+    const mdxPath = path.join(articlesDirectory, `${slug}.mdx`)
+    const mdPath = path.join(articlesDirectory, `${slug}.md`)
+    const filePath = fs.existsSync(mdxPath) ? mdxPath : mdPath
+    if (!fs.existsSync(filePath)) return undefined
 
     const fileContents = fs.readFileSync(filePath, 'utf8')
     const { data, content } = matter(fileContents)
-    const processedContent = await remark().use(html).process(content)
-    const contentHtml = processedContent.toString()
 
     const dateObj = new Date(data.date)
     const year = dateObj.getFullYear()
@@ -129,7 +116,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       slug,
       title: data.title,
       excerpt: data.excerpt || '',
-      content: contentHtml,
+      content,
       category: data.category || '',
       categoryLabel: data.categoryLabel || data.category || '',
       date: data.date,
@@ -142,6 +129,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
     }
   } catch (error) {
     console.error(`Error fetching article data for ${slug}:`, error)
+
     return undefined
   }
 }

@@ -19,13 +19,11 @@ export async function generateStaticParams() {
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   const resolvedParams = await params
   const article = await getArticleData(resolvedParams.slug)
+  if (!article) notFound()
+
   const relatedArticles = await getRelatedArticles(resolvedParams.slug)
   const allArticles = await getAllArticles()
   const categories = await getAllCategories()
-
-  if (!article) {
-    notFound()
-  }
 
   return (
     <ArticleClientPage

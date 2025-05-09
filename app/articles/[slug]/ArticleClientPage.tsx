@@ -7,10 +7,12 @@ import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
 import { TableOfContents } from '@/components/table-of-contents'
 import { ArticleData } from '@/lib/markdown'
+import { mdxToComponent } from '@/lib/mdx-to-component'
 import { Calendar, RefreshCw, Tag } from 'lucide-react'
+import type { MDXComponents } from 'mdx/types'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef } from 'react'
+import React, { Suspense, useMemo, useRef } from 'react'
 
 interface ArticleClientPageProps {
   article: ArticleData
@@ -135,14 +137,25 @@ export default function ArticleClientPage({
 function ArticleContent({ content }: { content: string }) {
   const contentRef = useRef<HTMLDivElement>(null)
 
+  const LazyBody = useMemo(
+    () =>
+      React.lazy(async () => {
+        const Comp = await mdxToComponent(content)
+        return { default: Comp }
+      }),
+    [content],
+  )
+
+  const components: MDXComponents = { Image }
+
   return (
     <>
       <TableOfContents contentRef={contentRef} />
-      <div
-        ref={contentRef}
-        className="prose max-w-none dark:prose-invert"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <div ref={contentRef} className="prose max-w-none dark:prose-invert">
+        <Suspense fallback={<p>Loading...</p>}>
+          <LazyBody components={components} />
+        </Suspense>
+      </div>
     </>
   )
 }
