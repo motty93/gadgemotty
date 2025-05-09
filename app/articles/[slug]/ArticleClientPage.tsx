@@ -3,17 +3,14 @@
 import { Breadcrumb } from '@/components/breadcrumb'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
-import { mdxComponents } from '@/components/mdx-components'
 import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
 import { TableOfContents } from '@/components/table-of-contents'
 import { ArticleData } from '@/lib/markdown'
-import { useMDXComponents } from '@mdx-js/react'
 import { Calendar, RefreshCw, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useMemo, useRef } from 'react'
-import * as runtime from 'react/jsx-runtime'
+import { useRef } from 'react'
 
 interface ArticleClientPageProps {
   article: ArticleData
@@ -135,23 +132,17 @@ export default function ArticleClientPage({
   )
 }
 
-export function ArticleContent({ content }: { content: string }) {
+function ArticleContent({ content }: { content: string }) {
   const contentRef = useRef<HTMLDivElement>(null)
-  const allComponents = useMDXComponents(() => mdxComponents)
-
-  const ComponentFactory = useMemo(() => {
-    const fn = new Function('React', ...Object.keys(runtime), `${content}`)
-    return fn({ ...runtime })
-  }, [content])
-  const MDXContent = ComponentFactory.default
-  console.info('MDXContent', MDXContent)
 
   return (
     <>
       <TableOfContents contentRef={contentRef} />
-      <div ref={contentRef} className="prose max-w-none dark:prose-invert">
-        <MDXContent components={allComponents} />
-      </div>
+      <div
+        ref={contentRef}
+        className="prose max-w-none dark:prose-invert"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
     </>
   )
 }
