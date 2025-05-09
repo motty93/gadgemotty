@@ -14,5 +14,11 @@
   },
   "build": {
     "command": "bun run build"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "level": "debug"
+    }
   }
 }
