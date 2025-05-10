@@ -2,7 +2,7 @@
 
 import NextImageHandler from '@/components/next-image-handler'
 import { TableOfContents } from '@/components/table-of-contents'
-import React, { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 interface ArticleContentProps {
   content: string
