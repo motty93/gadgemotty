@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { mdxToHtml } from './mdx-to-html'
 import type { BundledArticles } from './types'
 
 // Cloudflare Workers環境かどうかを検出
@@ -28,6 +29,7 @@ export type ArticleData = {
   title: string
   excerpt: string
   content: string
+  htmlContent: string
   category: string
   categoryLabel: string
   date: string
@@ -86,6 +88,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       title: article.title,
       excerpt: article.excerpt || '',
       content: article.content,
+      htmlContent: article.htmlContent || '',
       category: article.category || '',
       categoryLabel: article.categoryLabel || article.category || '',
       date: article.date,
@@ -108,6 +111,8 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
     const fileContents = fs.readFileSync(filePath, 'utf8')
     const { data, content } = matter(fileContents)
 
+    const htmlContent = await mdxToHtml(content)
+
     const dateObj = new Date(data.date)
     const year = dateObj.getFullYear()
     const month = dateObj.getMonth() + 1
@@ -117,6 +122,7 @@ export async function getArticleData(slug: string): Promise<ArticleData | undefi
       title: data.title,
       excerpt: data.excerpt || '',
       content,
+      htmlContent: htmlContent || '',
       category: data.category || '',
       categoryLabel: data.categoryLabel || data.category || '',
       date: data.date,
