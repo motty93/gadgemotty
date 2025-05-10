@@ -1,22 +1,29 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { mdxToHtml } from '../lib/mdx-to-html'
 
-function bundleArticles() {
+async function bundleArticles() {
   const articlesDirectory = path.join(process.cwd(), 'content', 'articles')
   const fileNames = fs.readdirSync(articlesDirectory)
 
-  const articles = fileNames.map((fileName) => {
-    const filePath = path.join(articlesDirectory, fileName)
-    const fileContents = fs.readFileSync(filePath, 'utf8')
-    const { data, content } = matter(fileContents)
+  const articles = await Promise.all(
+    fileNames.map(async (fileName) => {
+      const filePath = path.join(articlesDirectory, fileName)
+      const fileContents = fs.readFileSync(filePath, 'utf8')
+      const { data, content } = matter(fileContents)
 
-    return {
-      slug: fileName.replace(/\.mdx?$/, ''),
-      content: content,
-      ...data,
-    }
-  })
+      const htmlContent = await mdxToHtml(content)
+      const slug = fileName.replace(/\.mdx?$/, '')
+
+      return {
+        slug,
+        htmlContent,
+        content,
+        ...data,
+      }
+    }),
+  )
 
   // JSONファイルとして出力
   const outputPath = path.join(process.cwd(), 'lib', 'bundled-articles.json')
@@ -35,4 +42,6 @@ export default bundledArticles;
   console.log(`Generated type definitions at ${typeDefPath}`)
 }
 
-bundleArticles()
+bundleArticles().catch((err) => {
+  console.error(err)
+})

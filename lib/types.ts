@@ -3,6 +3,7 @@ export interface BundledArticle {
   title: string
   excerpt?: string
   content: string
+  htmlContent: string
   category: string
   categoryLabel?: string
   date: string

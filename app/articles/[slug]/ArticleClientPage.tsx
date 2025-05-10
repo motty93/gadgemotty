@@ -5,24 +5,25 @@ import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
 import { SpotlightSearch } from '@/components/spotlight-search'
-import { TableOfContents } from '@/components/table-of-contents'
 import { ArticleData } from '@/lib/markdown'
-import { mdxToComponent } from '@/lib/mdx-to-component'
 import { Calendar, RefreshCw, Tag } from 'lucide-react'
-import type { MDXComponents } from 'mdx/types'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { Suspense, useMemo, useRef } from 'react'
+import { ArticleContent } from './ArticleContent'
+
+interface CategoryData {
+  slug: string
+  label: string
+  count: number
+}
 
 interface ArticleClientPageProps {
-  article: ArticleData
+  article: ArticleData & {
+    htmlContent?: string
+  }
   relatedArticles: ArticleData[]
   allArticles: ArticleData[]
-  categories: Array<{
-    slug: string
-    label: string
-    count: number
-  }>
+  categories: CategoryData[]
 }
 
 export default function ArticleClientPage({
@@ -85,7 +86,7 @@ export default function ArticleClientPage({
                   className="w-full rounded mb-6"
                 />
 
-                <ArticleContent content={article.content} />
+                <ArticleContent content={article.content} htmlContent={article.htmlContent} />
               </div>
 
               <div className="border-t pt-4 flex justify-between items-center dark:border-gray-700">
@@ -131,31 +132,5 @@ export default function ArticleClientPage({
       </div>
       <Footer />
     </div>
-  )
-}
-
-function ArticleContent({ content }: { content: string }) {
-  const contentRef = useRef<HTMLDivElement>(null)
-
-  const LazyBody = useMemo(
-    () =>
-      React.lazy(async () => {
-        const Comp = await mdxToComponent(content)
-        return { default: Comp }
-      }),
-    [content],
-  )
-
-  const components: MDXComponents = { Image }
-
-  return (
-    <>
-      <TableOfContents contentRef={contentRef} />
-      <div ref={contentRef} className="prose max-w-none dark:prose-invert">
-        <Suspense fallback={<p>Loading...</p>}>
-          <LazyBody components={components} />
-        </Suspense>
-      </div>
-    </>
   )
 }
